@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+
+{% block title %}运动员首页 - 运动会管理系统{% endblock %}
+
+{% block page_title %}运动员首页{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-gradient-primary text-white" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+            <div class="card-body py-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="mb-2">欢迎回来，{{ current_user.name or current_user.username }}！</h3>
+                        <p class="mb-0 opacity-75">运动会管理系统 - 运动员端</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <i class="bi bi-person-circle" style="font-size: 5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions mb-4">
+    <div class="quick-action-card" onclick="location.href='{{ url_for('registration') }}'">
+        <div class="icon" style="background: rgba(79, 70, 229, 0.1); color: #4f46e5;">
+            <i class="bi bi-pencil-square"></i>
+        </div>
+        <h5>报名参赛</h5>
+        <p>浏览并报名比赛项目</p>
+    </div>
+    <div class="quick-action-card" onclick="location.href='{{ url_for('announcements') }}'">
+        <div class="icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <i class="bi bi-calendar-check"></i>
+        </div>
+        <h5>我的赛程</h5>
+        <p>查看个人参赛安排</p>
+    </div>
+    <div class="quick-action-card" onclick="location.href='{{ url_for('profile') }}'">
+        <div class="icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <i class="bi bi-person-gear"></i>
+        </div>
+        <h5>个人资料</h5>
+        <p>修改个人信息和密码</p>
+    </div>
+    <div class="quick-action-card" onclick="location.href='{{ url_for('announcements') }}'">
+        <div class="icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">
+            <i class="bi bi-megaphone"></i>
+        </div>
+        <h5>公告信息</h5>
+        <p>查看最新公告通知</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-list-check me-2"></i>我的报名
+                <span class="badge bg-primary ms-2">{{ my_registrations|length }}</span>
+            </div>
+            <div class="card-body">
+                {% if my_registrations %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>项目</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in my_registrations %}
+                            <tr>
+                                <td>{{ reg.event.name if reg.event else '-' }}</td>
+                                <td>{{ reg.event.event_type if reg.event else '-' }}</td>
+                                <td>
+                                    <span class="badge bg-success">已报名</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state py-3">
+                    <i class="bi bi-inbox"></i>
+                    <p class="mb-0">暂无报名记录</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-award me-2"></i>我的成绩
+                <span class="badge bg-warning ms-2">{{ my_results|length }}</span>
+            </div>
+            <div class="card-body">
+                {% if my_results %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>项目</th>
+                                <th>名次</th>
+                                <th>成绩</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in my_results %}
+                            <tr>
+                                <td>{{ result.schedule.event.name if result.schedule and result.schedule.event else '-' }}</td>
+                                <td>
+                                    {% if result.rank == 1 %}
+                                    <span class="badge bg-warning"><i class="bi bi-trophy-fill"></i> 第1名</span>
+                                    {% elif result.rank == 2 %}
+                                    <span class="badge bg-secondary"><i class="bi bi-trophy-fill"></i> 第2名</span>
+                                    {% elif result.rank == 3 %}
+                                    <span class="badge bg-danger"><i class="bi bi-trophy-fill"></i> 第3名</span>
+                                    {% else %}
+                                    <span class="badge bg-info">第{{ result.rank }}名</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ result.score }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state py-3">
+                    <i class="bi bi-award"></i>
+                    <p class="mb-0">暂无成绩记录</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-megaphone me-2"></i>最新公告
+            </div>
+            <div class="card-body">
+                {% for announcement in recent_announcements %}
+                <div class="border-bottom py-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">{{ announcement.title }}</h6>
+                            <small class="text-muted">{{ announcement.content[:100] }}...</small>
+                        </div>
+                        <small class="text-muted">{{ announcement.created_at.strftime('%Y-%m-%d') if announcement.created_at }}</small>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-megaphone"></i>
+                    <p class="mb-0">暂无公告</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

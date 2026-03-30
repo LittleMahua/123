@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}公告详情 - 运动会管理系统{% endblock %}
+
+{% block page_title %}公告详情{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('announcements') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回公告列表
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="announcement-detail">
+                    <h2 class="announcement-title mb-4">
+                        <i class="bi bi-megaphone-fill text-primary me-2"></i>{{ announcement.title }}
+                    </h2>
+                    <div class="announcement-meta mb-4">
+                        <span class="me-3">
+                            <i class="bi bi-person me-1"></i>发布人：{{ announcement.publisher }}
+                        </span>
+                        <span>
+                            <i class="bi bi-calendar me-1"></i>发布时间：{{ announcement.created_at.strftime('%Y-%m-%d %H:%M') if announcement.created_at }}
+                        </span>
+                    </div>
+                    <hr>
+                    <div class="announcement-content mt-4">
+                        {{ announcement.content }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .announcement-detail {
+        padding: 10px;
+    }
+    .announcement-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    .announcement-meta {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    .announcement-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #374151;
+        white-space: pre-wrap;
+    }
+</style>
+{% endblock %}

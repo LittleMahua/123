@@ -1,0 +1,208 @@
+{% extends "layout.html" %}
+
+{% block title %}志愿者管理 - 运动会管理系统{% endblock %}
+
+{% block page_title %}志愿者管理{% endblock %}
+
+{% block extra_css %}
+<style>
+.search-box { margin-bottom: 15px; }
+.search-box .form-control { border-radius: 8px; padding: 10px 15px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-heart me-2"></i>志愿者列表</span>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVolunteerModal">
+                    <i class="bi bi-plus-circle me-1"></i>添加志愿者
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="search-box">
+                    <input type="text" class="form-control" id="searchInput" placeholder="搜索姓名、学号、部门...">
+                </div>
+                {% if volunteers %}
+                <div class="table-responsive">
+                    <table class="table table-hover" id="searchTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>姓名</th>
+                                <th>学号</th>
+                                <th>电话</th>
+                                <th>部门</th>
+                                <th>可用时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for volunteer in volunteers %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ volunteer.name }}</strong></td>
+                                <td>{{ volunteer.student_id or '-' }}</td>
+                                <td>{{ volunteer.phone or '-' }}</td>
+                                <td>{{ volunteer.department or '-' }}</td>
+                                <td>{{ volunteer.available_time or '-' }}</td>
+                                <td>
+                                    {% if volunteer.status == 'active' %}
+                                    <span class="badge bg-success">活跃</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">停用</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editVolunteerModal{{ volunteer.id }}">
+                                        <i class="bi bi-pencil"></i> 编辑
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteVolunteerModal{{ volunteer.id }}">
+                                        <i class="bi bi-trash"></i> 删除
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-heart"></i>
+                    <h5>暂无志愿者</h5>
+                    <p>点击上方按钮添加志愿者</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for volunteer in volunteers %}
+<div class="modal fade" id="editVolunteerModal{{ volunteer.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>编辑志愿者</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('edit_volunteer', id=volunteer.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" name="name" value="{{ volunteer.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">学号</label>
+                        <input type="text" class="form-control" name="student_id" value="{{ volunteer.student_id or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">电话</label>
+                        <input type="text" class="form-control" name="phone" value="{{ volunteer.phone or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">部门</label>
+                        <input type="text" class="form-control" name="department" value="{{ volunteer.department or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">可用时间</label>
+                        <input type="text" class="form-control" name="available_time" value="{{ volunteer.available_time or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" name="status">
+                            <option value="active" {% if volunteer.status == 'active' %}selected{% endif %}>活跃</option>
+                            <option value="inactive" {% if volunteer.status == 'inactive' %}selected{% endif %}>停用</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<div class="modal fade" id="addVolunteerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>添加志愿者</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_volunteer') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" name="name" placeholder="志愿者姓名" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">学号</label>
+                        <input type="text" class="form-control" name="student_id" placeholder="学号">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">电话</label>
+                        <input type="text" class="form-control" name="phone" placeholder="联系电话">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">部门</label>
+                        <input type="text" class="form-control" name="department" placeholder="所属部门">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">可用时间</label>
+                        <input type="text" class="form-control" name="available_time" placeholder="如：周一至周五">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for volunteer in volunteers %}
+<div class="modal fade" id="deleteVolunteerModal{{ volunteer.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>确认删除</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">确定要删除该志愿者吗？</h5>
+                <p class="text-muted">志愿者姓名：<strong>{{ volunteer.name }}</strong></p>
+                <p class="text-danger small">此操作不可恢复，请谨慎操作！</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <a href="{{ url_for('delete_volunteer', id=volunteer.id) }}" class="btn btn-danger">确认删除</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchText = this.value.toLowerCase();
+    const table = document.getElementById('searchTable');
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchText) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,267 @@
+{% extends "layout.html" %}
+
+{% block title %}登录 - 运动会管理系统{% endblock %}
+
+{% block login_content %}
+<style>
+    .login-page {
+        min-height: 100vh;
+        display: flex;
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 60px;
+        position: relative;
+    }
+
+    .login-left::before {
+        content: '';
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .login-left::after {
+        content: '';
+        position: absolute;
+        bottom: 15%;
+        right: 15%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(10deg); }
+    }
+
+    .login-brand {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .login-brand .icon-wrapper {
+        width: 120px;
+        height: 120px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .login-brand i {
+        font-size: 3.5rem;
+        color: white;
+    }
+
+    .login-brand h1 {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .login-brand p {
+        color: rgba(255,255,255,0.85);
+        font-size: 1.1rem;
+        max-width: 400px;
+    }
+
+    .login-right {
+        width: 520px;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 60px;
+        box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 2;
+    }
+
+    .login-right h2 {
+        color: #1e293b;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .login-right .subtitle {
+        color: #64748b;
+        margin-bottom: 40px;
+    }
+
+    .form-control {
+        padding: 14px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        transition: all 0.3s;
+        font-size: 1rem;
+        background: #f8fafc;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        background: #fff;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .input-group {
+        margin-bottom: 25px;
+    }
+
+    .input-group-text {
+        background: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        border-right: none;
+        border-radius: 12px 0 0 12px;
+        padding: 14px 16px;
+        color: #64748b;
+    }
+
+    .input-group .form-control {
+        border-left: none;
+        border-radius: 0 12px 12px 0;
+    }
+
+    .input-group:focus-within .input-group-text {
+        border-color: #3b82f6;
+        background: #fff;
+    }
+
+    .input-group:focus-within .form-control {
+        border-color: #3b82f6;
+    }
+
+    .btn-login {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: #fff;
+        padding: 16px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 25px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .register-link a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+
+    .footer-copyright {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255,255,255,0.6);
+        font-size: 0.85rem;
+    }
+
+    @media (max-width: 992px) {
+        .login-page {
+            flex-direction: column;
+        }
+        .login-left {
+            padding: 40px 20px;
+            min-height: 40vh;
+        }
+        .login-right {
+            width: 100%;
+            padding: 40px 30px;
+        }
+        .login-brand h1 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="login-page">
+    <div class="login-left">
+        <div class="login-brand">
+            <div class="icon-wrapper">
+                <i class="bi bi-trophy-fill"></i>
+            </div>
+            <h1>运动会管理系统</h1>
+            <p>科学管理，高效协作，助力校园体育事业蓬勃发展</p>
+        </div>
+        <div class="footer-copyright">
+            © 2024 运动会管理系统 版权所有
+        </div>
+    </div>
+    <div class="login-right">
+        <h2>欢迎回来</h2>
+        <p class="subtitle">请使用您的账号登录系统</p>
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-person-fill"></i>
+                </span>
+                <input type="text" class="form-control" name="username" placeholder="请输入用户名" required>
+            </div>
+            
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-lock-fill"></i>
+                </span>
+                <input type="password" class="form-control" name="password" placeholder="请输入密码" required>
+            </div>
+            
+            <button type="submit" class="btn btn-login">
+                <i class="bi bi-box-arrow-in-right me-2"></i>登 录
+            </button>
+        </form>
+        
+        <div class="register-link">
+            <p class="text-muted mb-0">还没有账号？ <a href="{{ url_for('register') }}">立即注册</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

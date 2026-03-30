@@ -1,0 +1,167 @@
+{% extends "layout.html" %}
+
+{% block title %}管理员仪表盘 - 运动会管理系统{% endblock %}
+
+{% block page_title %}管理员仪表盘{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+    <div class="card stat-card" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="text-white-50">运动员总数</div>
+                <div class="stat-number">{{ athlete_count }}</div>
+            </div>
+            <div class="stat-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card stat-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="text-white-50">比赛项目</div>
+                <div class="stat-number">{{ event_count }}</div>
+            </div>
+            <div class="stat-icon">
+                <i class="bi bi-calendar-event-fill"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card stat-card" style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="text-white-50">报名人次</div>
+                <div class="stat-number">{{ registration_count }}</div>
+            </div>
+            <div class="stat-icon">
+                <i class="bi bi-clipboard-check-fill"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card stat-card" style="background: linear-gradient(135deg, #dc2626 0%, #f97316 100%);">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="text-white-50">公告数量</div>
+                <div class="stat-number">{{ announcement_count }}</div>
+            </div>
+            <div class="stat-icon">
+                <i class="bi bi-megaphone-fill"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-person-badge me-2"></i>最近添加的运动员</span>
+                <a href="{{ url_for('athletes') }}" class="btn btn-sm btn-primary">查看全部</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>学号</th>
+                                <th>班级</th>
+                                <th>性别</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for athlete in recent_athletes %}
+                            <tr>
+                                <td>{{ athlete.name }}</td>
+                                <td>{{ athlete.student_id }}</td>
+                                <td>{{ athlete.class_name or '-' }}</td>
+                                <td>{{ athlete.gender or '-' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">暂无数据</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-megaphone me-2"></i>最新公告</span>
+                <a href="{{ url_for('admin_announcements') }}" class="btn btn-sm btn-primary">管理公告</a>
+            </div>
+            <div class="card-body">
+                {% for announcement in recent_announcements %}
+                <div class="border-bottom py-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">{{ announcement.title }}</h6>
+                            <small class="text-muted">{{ announcement.content[:50] }}...</small>
+                        </div>
+                        <small class="text-muted">{{ announcement.created_at.strftime('%Y-%m-%d') if announcement.created_at }}</small>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-center text-muted py-4">暂无公告</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-calendar-check me-2"></i>近期赛程
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>项目</th>
+                                <th>时间</th>
+                                <th>地点</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for schedule in recent_schedules %}
+                            <tr>
+                                <td>{{ schedule.event.name if schedule.event else '-' }}</td>
+                                <td>{{ schedule.start_time.strftime('%Y-%m-%d %H:%M') if schedule.start_time }}</td>
+                                <td>{{ schedule.location or '-' }}</td>
+                                <td>
+                                    {% if schedule.status == 'scheduled' %}
+                                    <span class="badge bg-primary">已安排</span>
+                                    {% elif schedule.status == 'ongoing' %}
+                                    <span class="badge bg-warning">进行中</span>
+                                    {% elif schedule.status == 'completed' %}
+                                    <span class="badge bg-success">已完成</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ schedule.status }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">暂无赛程</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

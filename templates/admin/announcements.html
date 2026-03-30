@@ -1,0 +1,180 @@
+{% extends "layout.html" %}
+
+{% block title %}公告管理 - 运动会管理系统{% endblock %}
+
+{% block page_title %}公告管理{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-megaphone me-2"></i>公告列表</span>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                    <i class="bi bi-plus-circle me-1"></i>发布公告
+                </button>
+            </div>
+            <div class="card-body">
+                {% if announcements %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>标题</th>
+                                <th>发布人</th>
+                                <th>状态</th>
+                                <th>发布时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for announcement in announcements %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    <a href="{{ url_for('announcement_detail', id=announcement.id) }}" class="text-primary fw-bold">
+                                        {{ announcement.title }}
+                                    </a>
+                                </td>
+                                <td>{{ announcement.publisher }}</td>
+                                <td>
+                                    {% if announcement.is_published %}
+                                    <span class="badge bg-success">已发布</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">草稿</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ announcement.created_at.strftime('%Y-%m-%d %H:%M') if announcement.created_at }}</td>
+                                <td>
+                                    <a href="{{ url_for('announcement_detail', id=announcement.id) }}" class="btn btn-info btn-sm">
+                                        <i class="bi bi-eye me-1"></i>查看
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAnnouncementModal{{ announcement.id }}">
+                                        <i class="bi bi-pencil"></i> 编辑
+                                    </button>
+                                    {% if not announcement.is_published %}
+                                    <a href="{{ url_for('publish_announcement', id=announcement.id) }}" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-send"></i> 发布
+                                    </a>
+                                    {% else %}
+                                    <a href="{{ url_for('unpublish_announcement', id=announcement.id) }}" class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-send-fill"></i> 取消发布
+                                    </a>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAnnouncementModal{{ announcement.id }}">
+                                        <i class="bi bi-trash"></i> 删除
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-megaphone"></i>
+                    <h5>暂无公告</h5>
+                    <p>点击上方按钮发布公告</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for announcement in announcements %}
+<div class="modal fade" id="editAnnouncementModal{{ announcement.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>编辑公告</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('edit_announcement', id=announcement.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">公告标题</label>
+                        <input type="text" class="form-control" name="title" value="{{ announcement.title }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">公告内容</label>
+                        <textarea class="form-control" name="content" rows="6" required>{{ announcement.content }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_published" id="isPublished{{ announcement.id }}" {% if announcement.is_published %}checked{% endif %}>
+                            <label class="form-check-label" for="isPublished{{ announcement.id }}">
+                                发布
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% for announcement in announcements %}
+<div class="modal fade" id="deleteAnnouncementModal{{ announcement.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>确认删除</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">确定要删除该公告吗？</h5>
+                <p class="text-muted">公告标题：<strong>{{ announcement.title }}</strong></p>
+                <p class="text-danger small">此操作不可恢复，请谨慎操作！</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <a href="{{ url_for('delete_announcement', id=announcement.id) }}" class="btn btn-danger">确认删除</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<div class="modal fade" id="addAnnouncementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>发布公告</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_announcement') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">公告标题</label>
+                        <input type="text" class="form-control" name="title" placeholder="请输入公告标题" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">公告内容</label>
+                        <textarea class="form-control" name="content" rows="6" placeholder="请输入公告内容" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_published" id="isPublishedNew" checked>
+                            <label class="form-check-label" for="isPublishedNew">
+                                立即发布
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

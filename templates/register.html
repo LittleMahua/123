@@ -1,0 +1,210 @@
+{% extends "layout.html" %}
+
+{% block title %}注册 - 运动会管理系统{% endblock %}
+
+{% block login_content %}
+<style>
+    .register-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .register-page::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        left: -10%;
+        width: 50%;
+        height: 50%;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+    
+    .register-page::after {
+        content: '';
+        position: absolute;
+        bottom: -10%;
+        right: -10%;
+        width: 50%;
+        height: 50%;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+    
+    .register-card {
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        overflow: hidden;
+        width: 100%;
+        max-width: 480px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .register-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        padding: 30px 40px;
+        text-align: center;
+    }
+    
+    .register-header i {
+        font-size: 2.5rem;
+        color: #fff;
+    }
+    
+    .register-header h3 {
+        color: white;
+        font-weight: 700;
+        margin-top: 10px;
+    }
+    
+    .register-body {
+        padding: 30px 40px;
+    }
+    
+    .form-control, .form-select {
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    
+    .btn-register {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #fff;
+        padding: 14px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s;
+        width: 100%;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+    
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .login-link a {
+        color: #10b981;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+    
+    .role-select {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .role-option {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .role-option:hover {
+        border-color: #10b981;
+    }
+    
+    .role-option.selected {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .role-option i {
+        font-size: 1.5rem;
+        color: #10b981;
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    .role-option span {
+        font-weight: 600;
+        color: #374151;
+    }
+</style>
+
+<div class="register-page">
+    <div class="register-card">
+        <div class="register-header">
+            <i class="bi bi-person-plus-fill"></i>
+            <h3>用户注册</h3>
+        </div>
+        <div class="register-body">
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-person me-2"></i>用户名</label>
+                    <input type="text" class="form-control" name="username" placeholder="请输入用户名" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-key me-2"></i>密码</label>
+                    <input type="password" class="form-control" name="password" placeholder="请输入密码" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-person-badge me-2"></i>真实姓名</label>
+                    <input type="text" class="form-control" name="name" placeholder="请输入真实姓名" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-people me-2"></i>身份</label>
+                    <select class="form-select" name="role" required>
+                        <option value="athlete">运动员</option>
+                        <option value="teacher">教师</option>
+                        <option value="referee">裁判</option>
+                        <option value="volunteer">志愿者</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-card-id me-2"></i>学号/工号</label>
+                    <input type="text" class="form-control" name="student_id" placeholder="请输入学号或工号">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-phone me-2"></i>联系电话</label>
+                    <input type="text" class="form-control" name="phone" placeholder="请输入联系电话">
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-register">
+                        <i class="bi bi-check-circle me-2"></i>注 册
+                    </button>
+                </div>
+            </form>
+            <div class="login-link">
+                <p class="text-muted mb-0">已有账号？ <a href="{{ url_for('login') }}">立即登录</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

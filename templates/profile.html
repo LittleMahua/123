@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+
+{% block title %}个人资料 - 运动会管理系统{% endblock %}
+
+{% block page_title %}个人资料{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center py-4">
+                <div class="user-avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem; border-radius: 50%;">
+                    {{ current_user.name[0] if current_user.name else current_user.username[0] }}
+                </div>
+                <h4>{{ current_user.name or current_user.username }}</h4>
+                <p class="text-muted">
+                    {% if current_user.role == 'admin' %}
+                    <span class="badge bg-danger">管理员</span>
+                    {% elif current_user.role == 'teacher' %}
+                    <span class="badge bg-warning">教师</span>
+                    {% else %}
+                    <span class="badge bg-info">运动员</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-person-gear me-2"></i>修改个人信息
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" value="{{ current_user.username }}" disabled>
+                        <small class="text-muted">用户名不可修改</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" name="name" value="{{ current_user.name or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">学号/工号</label>
+                        <input type="text" class="form-control" value="{{ current_user.student_id or '未设置' }}" disabled>
+                    </div>
+                    {% if current_user.role == 'athlete' and athlete %}
+                    <div class="mb-3">
+                        <label class="form-label">班级</label>
+                        <input type="text" class="form-control" name="class_name" value="{{ athlete.class_name or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">性别</label>
+                        <select class="form-select" name="gender">
+                            <option value="">请选择</option>
+                            <option value="男" {% if athlete.gender == '男' %}selected{% endif %}>男</option>
+                            <option value="女" {% if athlete.gender == '女' %}selected{% endif %}>女</option>
+                        </select>
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">联系电话</label>
+                        <input type="text" class="form-control" name="phone" value="{{ current_user.phone or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">注册时间</label>
+                        <input type="text" class="form-control" value="{{ current_user.created_at.strftime('%Y-%m-%d %H:%M') if current_user.created_at }}" disabled>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>保存修改
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-key me-2"></i>修改密码
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('change_password') }}">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">当前密码</label>
+                            <input type="password" class="form-control" name="current_password" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">新密码</label>
+                            <input type="password" class="form-control" name="new_password" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">确认新密码</label>
+                            <input type="password" class="form-control" name="confirm_password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-lock me-2"></i>修改密码
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

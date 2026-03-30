@@ -1,0 +1,181 @@
+{% extends "layout.html" %}
+
+{% block title %}成绩管理 - 运动会管理系统{% endblock %}
+
+{% block page_title %}成绩管理{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-award me-2"></i>比赛成绩</span>
+                {% if current_user.role in ['admin', 'teacher', 'referee'] %}
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addResultModal">
+                    <i class="bi bi-plus-circle me-1"></i>录入成绩
+                </button>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if results_by_event %}
+                <div class="accordion" id="resultsAccordion">
+                    {% for event_id, results in results_by_event.items() %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ event_id }}">
+                                <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                    <span>
+                                        <i class="bi bi-trophy text-warning me-2"></i>
+                                        <strong>{{ results[0].schedule.event.name if results[0].schedule and results[0].schedule.event else '未知项目' }}</strong>
+                                        <span class="badge bg-info ms-2">{{ results|length }}人</span>
+                                    </span>
+                                    <span class="text-muted">
+                                        {{ results[0].schedule.start_time.strftime('%Y-%m-%d') if results[0].schedule and results[0].schedule.start_time }}
+                                    </span>
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="collapse{{ event_id }}" class="accordion-collapse collapse" data-bs-parent="#resultsAccordion">
+                            <div class="accordion-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>名次</th>
+                                                <th>运动员</th>
+                                                <th>学号</th>
+                                                <th>班级</th>
+                                                <th>成绩</th>
+                                                <th>备注</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% set sorted_results = results|sort(attribute='rank', default=999) %}
+                                            {% for result in sorted_results %}
+                                            <tr>
+                                                <td class="text-center">
+                                                    {% if result.rank == 1 %}
+                                                    <span class="badge bg-warning text-dark font-weight-bold p-2" style="font-size: 0.9rem; min-width: 80px;"><i class="bi bi-trophy-fill me-1"></i> 第1名</span>
+                                                    {% elif result.rank == 2 %}
+                                                    <span class="badge bg-secondary text-white font-weight-bold p-2" style="font-size: 0.9rem; min-width: 80px;"><i class="bi bi-trophy-fill me-1"></i> 第2名</span>
+                                                    {% elif result.rank == 3 %}
+                                                    <span class="badge bg-danger text-white font-weight-bold p-2" style="font-size: 0.9rem; min-width: 80px;"><i class="bi bi-trophy-fill me-1"></i> 第3名</span>
+                                                    {% elif result.rank %}
+                                                    <span class="badge bg-info text-white font-weight-bold p-2" style="font-size: 0.9rem; min-width: 80px;">第{{ result.rank }}名</span>
+                                                    {% else %}
+                                                    <span class="badge bg-secondary text-white p-2" style="font-size: 0.9rem; min-width: 80px;">未排名</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <a href="{{ url_for('result_detail', id=result.id) }}" class="text-primary fw-bold">
+                                                        {{ result.athlete.name if result.athlete else '-' }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ result.athlete.student_id if result.athlete else '-' }}</td>
+                                                <td>{{ result.athlete.class_name if result.athlete else '-' }}</td>
+                                                <td><strong>{{ result.score }}</strong></td>
+                                                <td>{{ result.remarks or '-' }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-award"></i>
+                    <h5>暂无成绩记录</h5>
+                    {% if current_user.role in ['admin', 'teacher', 'referee'] %}
+                    <p>点击上方按钮录入成绩</p>
+                    {% else %}
+                    <p>暂无成绩记录</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if current_user.role in ['admin', 'teacher', 'referee'] %}
+<div class="modal fade" id="addResultModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>录入成绩</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_result') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">选择赛程</label>
+                        <select class="form-select" name="schedule_id" required>
+                            <option value="">请选择赛程</option>
+                            {% for schedule in schedules %}
+                            <option value="{{ schedule.id }}">{{ schedule.event.name }} - {{ schedule.start_time.strftime('%m-%d %H:%M') if schedule.start_time }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">选择运动员</label>
+                        <select class="form-select" name="athlete_id" required>
+                            <option value="">请选择运动员</option>
+                            {% for athlete in athletes %}
+                            <option value="{{ athlete.id }}">{{ athlete.name }} - {{ athlete.student_id }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">成绩</label>
+                        <input type="text" class="form-control" name="score" placeholder="如：12.5秒" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">备注</label>
+                        <textarea class="form-control" name="remarks" rows="2" placeholder="可选"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .accordion-button:not(.collapsed) {
+        background-color: #e7f1ff;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+    .table-hover tbody tr {
+        transition: all 0.2s ease;
+    }
+    .card {
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-primary:hover {
+        background-color: #0069d9;
+        border-color: #0062cc;
+    }
+</style>
+{% endblock %}

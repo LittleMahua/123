@@ -1,0 +1,247 @@
+                <!-- 教师菜单 -->
+                {% elif current_user.role == 'teacher' %}
+                <li class="nav-item">
+                    <a class="nav-link{% if request.endpoint == 'teacher_dashboard' %} active{% endif %}" href="{{ url_for('teacher_dashboard') }}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span class="nav-text">仪表盘</span>
+                    </a>
+                </li>
+                <div class="nav-divider"></div>
+
+                <li class="nav-item has-submenu" data-menu="user-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-people"></i>
+                        <span class="nav-text">用户管理</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'athletes' %} active{% endif %}" href="{{ url_for('athletes') }}">
+                            <i class="bi bi-person-rolodex"></i>
+                            <span class="nav-text">运动员管理</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'volunteers' %} active{% endif %}" href="{{ url_for('volunteers') }}">
+                            <i class="bi bi-heart"></i>
+                            <span class="nav-text">志愿者管理</span>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item has-submenu" data-menu="event-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-calendar-event"></i>
+                        <span class="nav-text">赛事管理</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'events' %} active{% endif %}" href="{{ url_for('events') }}">
+                            <i class="bi bi-calendar-week"></i>
+                            <span class="nav-text">赛事列表</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'schedules' %} active{% endif %}" href="{{ url_for('schedules') }}">
+                            <i class="bi bi-clock"></i>
+                            <span class="nav-text">赛程安排</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'all_registrations' %} active{% endif %}" href="{{ url_for('all_registrations') }}">
+                            <i class="bi bi-clipboard-check"></i>
+                            <span class="nav-text">报名审核</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'results' %} active{% endif %}" href="{{ url_for('results') }}">
+                            <i class="bi bi-trophy"></i>
+                            <span class="nav-text">比赛成绩</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'ranking' %} active{% endif %}" href="{{ url_for('ranking') }}">
+                            <i class="bi bi-sort-numeric-up"></i>
+                            <span class="nav-text">排名统计</span>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item has-submenu" data-menu="logistics-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-box-seam"></i>
+                        <span class="nav-text">后勤管理</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'materials' %} active{% endif %}" href="{{ url_for('materials') }}">
+                            <i class="bi bi-inbox"></i>
+                            <span class="nav-text">物资管理</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'volunteer_assignments' %} active{% endif %}" href="{{ url_for('volunteer_assignments') }}">
+                            <i class="bi bi-person-check"></i>
+                            <span class="nav-text">任务分配</span>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item has-submenu" data-menu="medical-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-hospital"></i>
+                        <span class="nav-text">医疗保障</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'medical_info' %} active{% endif %}" href="{{ url_for('medical_info') }}">
+                            <i class="bi bi-building"></i>
+                            <span class="nav-text">医疗点管理</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'emergency_records' %} active{% endif %}" href="{{ url_for('emergency_records') }}">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span class="nav-text">应急记录</span>
+                        </a>
+                    </div>
+                </li>
+
+                <!-- 裁判菜单 -->
+                {% elif current_user.role == 'referee' %}
+                <li class="nav-item">
+                    <a class="nav-link{% if request.endpoint == 'referee_dashboard' %} active{% endif %}" href="{{ url_for('referee_dashboard') }}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span class="nav-text">裁判工作台</span>
+                    </a>
+                </li>
+                <div class="nav-divider"></div>
+
+                <li class="nav-item has-submenu" data-menu="event-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-calendar-event"></i>
+                        <span class="nav-text">赛事管理</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'schedules' %} active{% endif %}" href="{{ url_for('schedules') }}">
+                            <i class="bi bi-clock"></i>
+                            <span class="nav-text">赛程安排</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'results' %} active{% endif %}" href="{{ url_for('results') }}">
+                            <i class="bi bi-trophy"></i>
+                            <span class="nav-text">成绩管理</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'ranking' %} active{% endif %}" href="{{ url_for('ranking') }}">
+                            <i class="bi bi-sort-numeric-up"></i>
+                            <span class="nav-text">排名统计</span>
+                        </a>
+                    </div>
+                </li>
+
+                <!-- 志愿者菜单 -->
+                {% elif current_user.role == 'volunteer' %}
+                <li class="nav-item">
+                    <a class="nav-link{% if request.endpoint == 'volunteer_dashboard' %} active{% endif %}" href="{{ url_for('volunteer_dashboard') }}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span class="nav-text">志愿者工作台</span>
+                    </a>
+                </li>
+                <div class="nav-divider"></div>
+
+                <li class="nav-item has-submenu" data-menu="event-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-calendar-event"></i>
+                        <span class="nav-text">赛事信息</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'schedules' %} active{% endif %}" href="{{ url_for('schedules') }}">
+                            <i class="bi bi-clock"></i>
+                            <span class="nav-text">赛程查看</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'results' %} active{% endif %}" href="{{ url_for('results') }}">
+                            <i class="bi bi-trophy"></i>
+                            <span class="nav-text">比赛成绩</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'ranking' %} active{% endif %}" href="{{ url_for('ranking') }}">
+                            <i class="bi bi-sort-numeric-up"></i>
+                            <span class="nav-text">排名统计</span>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item has-submenu" data-menu="logistics-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-box-seam"></i>
+                        <span class="nav-text">后勤支持</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'materials' %} active{% endif %}" href="{{ url_for('materials') }}">
+                            <i class="bi bi-inbox"></i>
+                            <span class="nav-text">物资查看</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'volunteer_assignments' %} active{% endif %}" href="{{ url_for('volunteer_assignments') }}">
+                            <i class="bi bi-list-check"></i>
+                            <span class="nav-text">我的任务</span>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item has-submenu" data-menu="medical-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-hospital"></i>
+                        <span class="nav-text">医疗保障</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'medical_info' %} active{% endif %}" href="{{ url_for('medical_info') }}">
+                            <i class="bi bi-building"></i>
+                            <span class="nav-text">医疗点</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'emergency_records' %} active{% endif %}" href="{{ url_for('emergency_records') }}">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span class="nav-text">应急记录</span>
+                        </a>
+                    </div>
+                </li>
+
+                <!-- 运动员菜单 -->
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link{% if request.endpoint == 'athlete_dashboard' %} active{% endif %}" href="{{ url_for('athlete_dashboard') }}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span class="nav-text">仪表盘</span>
+                    </a>
+                </li>
+                <div class="nav-divider"></div>
+
+                <li class="nav-item has-submenu" data-menu="event-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-calendar-event"></i>
+                        <span class="nav-text">赛事信息</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'registration' %} active{% endif %}" href="{{ url_for('registration') }}">
+                            <i class="bi bi-pencil-square"></i>
+                            <span class="nav-text">报名参赛</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'schedules' %} active{% endif %}" href="{{ url_for('schedules') }}">
+                            <i class="bi bi-clock"></i>
+                            <span class="nav-text">赛程查看</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'results' %} active{% endif %}" href="{{ url_for('results') }}">
+                            <i class="bi bi-trophy"></i>
+                            <span class="nav-text">比赛成绩</span>
+                        </a>
+                        <a class="nav-link{% if request.endpoint == 'ranking' %} active{% endif %}" href="{{ url_for('ranking') }}">
+                            <i class="bi bi-sort-numeric-up"></i>
+                            <span class="nav-text">排名查询</span>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item has-submenu" data-menu="medical-management">
+                    <a class="nav-link" href="javascript:void(0)">
+                        <i class="bi bi-hospital"></i>
+                        <span class="nav-text">医疗保障</span>
+                        <i class="bi bi-chevron-right menu-arrow"></i>
+                    </a>
+                    <div class="submenu">
+                        <a class="nav-link{% if request.endpoint == 'medical_info' %} active{% endif %}" href="{{ url_for('medical_info') }}">
+                            <i class="bi bi-building"></i>
+                            <span class="nav-text">医疗点</span>
+                        </a>
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>

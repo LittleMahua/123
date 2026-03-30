@@ -1,0 +1,115 @@
+{% extends "layout.html" %}
+
+{% block title %}排名统计 - 运动会管理系统{% endblock %}
+
+{% block page_title %}排名统计{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title"><i class="bi bi-trophy me-2"></i>个人排名</h5>
+            </div>
+            <div class="card-body">
+                {% if sorted_athletes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>姓名</th>
+                                <th>班级</th>
+                                <th>金牌</th>
+                                <th>银牌</th>
+                                <th>铜牌</th>
+                                <th>总分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for id, data in sorted_athletes %}
+                            <tr>
+                                <td>
+                                    {% if loop.index == 1 %}
+                                    <i class="bi bi-trophy text-warning me-1"></i>1
+                                    {% elif loop.index == 2 %}
+                                    <i class="bi bi-trophy text-secondary me-1"></i>2
+                                    {% elif loop.index == 3 %}
+                                    <i class="bi bi-trophy text-danger me-1"></i>3
+                                    {% else %}
+                                    {{ loop.index }}
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ data.name }}</strong></td>
+                                <td>{{ data.class_name or '-' }}</td>
+                                <td><span class="badge bg-warning text-dark">{{ data.gold }}</span></td>
+                                <td><span class="badge bg-secondary">{{ data.silver }}</span></td>
+                                <td><span class="badge bg-danger">{{ data.bronze }}</span></td>
+                                <td><strong>{{ data.total_score }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-trophy"></i>
+                    <h5>暂无排名数据</h5>
+                    <p>请先录入比赛成绩</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title"><i class="bi bi-collection me-2"></i>团体排名</h5>
+            </div>
+            <div class="card-body">
+                {% if teams %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>队名</th>
+                                <th>教练</th>
+                                <th>总积分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team in teams %}
+                            <tr>
+                                <td>
+                                    {% if loop.index == 1 %}
+                                    <i class="bi bi-trophy text-warning me-1"></i>1
+                                    {% elif loop.index == 2 %}
+                                    <i class="bi bi-trophy text-secondary me-1"></i>2
+                                    {% elif loop.index == 3 %}
+                                    <i class="bi bi-trophy text-danger me-1"></i>3
+                                    {% else %}
+                                    {{ loop.index }}
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ team.name }}</strong></td>
+                                <td>{{ team.coach or '-' }}</td>
+                                <td><strong>{{ team.total_score }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-collection"></i>
+                    <h5>暂无队伍</h5>
+                    <p>请先添加队伍</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

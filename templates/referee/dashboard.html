@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}裁判工作台 - 运动会管理系统{% endblock %}
+
+{% block page_title %}裁判工作台{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title"><i class="bi bi-calendar-check me-2"></i>今日赛程</h5>
+            </div>
+            <div class="card-body">
+                {% if today_schedules %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>项目</th>
+                                <th>轮次</th>
+                                <th>时间</th>
+                                <th>地点</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for schedule in today_schedules %}
+                            <tr>
+                                <td><strong>{{ schedule.event.name if schedule.event else '-' }}</strong></td>
+                                <td>第{{ schedule.round_number }}轮</td>
+                                <td>{{ schedule.start_time.strftime('%H:%M') if schedule.start_time else '-' }} - {{ schedule.end_time.strftime('%H:%M') if schedule.end_time else '-' }}</td>
+                                <td>{{ schedule.location or '-' }}</td>
+                                <td>
+                                    {% if schedule.status == 'completed' %}
+                                    <span class="badge bg-success">已完成</span>
+                                    {% elif schedule.status == 'in_progress' %}
+                                    <span class="badge bg-warning">进行中</span>
+                                    {% else %}
+                                    <span class="badge bg-info">待开始</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('results') }}?event_id={{ schedule.event_id }}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-pencil"></i> 录入成绩
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-calendar-x"></i>
+                    <h5>今日无赛程</h5>
+                    <p>当前没有安排的比赛</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title"><i class="bi bi-clock-history me-2"></i>待处理成绩</h5>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="text-primary">{{ pending_results }}</h2>
+                <p class="text-muted">条待审核成绩</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title"><i class="bi bi-award me-2"></i>快速操作</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('results') }}" class="btn btn-primary">
+                        <i class="bi bi-pencil-square me-2"></i>录入成绩
+                    </a>
+                    <a href="{{ url_for('schedules') }}" class="btn btn-info">
+                        <i class="bi bi-calendar me-2"></i>查看赛程
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

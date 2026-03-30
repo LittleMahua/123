@@ -1,0 +1,253 @@
+{% extends "layout.html" %}
+
+{% block title %}物资管理 - 运动会管理系统{% endblock %}
+
+{% block page_title %}物资管理{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-box-seam me-2"></i>物资列表</span>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMaterialModal">
+                    <i class="bi bi-plus-circle me-1"></i>添加物资
+                </button>
+            </div>
+            <div class="card-body">
+                {% if materials %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>名称</th>
+                                <th>类别</th>
+                                <th>数量</th>
+                                <th>单位</th>
+                                <th>最低库存</th>
+                                <th>位置</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for material in materials %}
+                            <tr class="{% if material.quantity <= material.min_stock %}table-warning{% endif %}">
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ material.name }}</strong></td>
+                                <td>{{ material.category or '-' }}</td>
+                                <td>{{ material.quantity }}</td>
+                                <td>{{ material.unit or '-' }}</td>
+                                <td>{{ material.min_stock }}</td>
+                                <td>{{ material.location or '-' }}</td>
+                                <td>
+                                    {% if material.quantity <= material.min_stock %}
+                                    <span class="badge bg-warning">库存不足</span>
+                                    {% else %}
+                                    <span class="badge bg-success">正常</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#inModal{{ material.id }}">
+                                            <i class="bi bi-plus-circle"></i> 入库
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#outModal{{ material.id }}">
+                                            <i class="bi bi-dash-circle"></i> 出库
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editMaterialModal{{ material.id }}">
+                                            <i class="bi bi-pencil"></i> 编辑
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteMaterialModal{{ material.id }}">
+                                            <i class="bi bi-trash"></i> 删除
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-box-seam"></i>
+                    <h5>暂无物资</h5>
+                    <p>点击上方按钮添加物资</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for material in materials %}
+<div class="modal fade" id="editMaterialModal{{ material.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>编辑物资</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('edit_material', id=material.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">名称</label>
+                        <input type="text" class="form-control" name="name" value="{{ material.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">类别</label>
+                        <input type="text" class="form-control" name="category" value="{{ material.category or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">数量</label>
+                        <input type="number" class="form-control" name="quantity" value="{{ material.quantity }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">单位</label>
+                        <input type="text" class="form-control" name="unit" value="{{ material.unit or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">最低库存</label>
+                        <input type="number" class="form-control" name="min_stock" value="{{ material.min_stock }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">位置</label>
+                        <input type="text" class="form-control" name="location" value="{{ material.location or '' }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="inModal{{ material.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>物资入库</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('material_in', id=material.id) }}">
+                <div class="modal-body">
+                    <p>物资名称：<strong>{{ material.name }}</strong></p>
+                    <p>当前库存：{{ material.quantity }}{{ material.unit }}</p>
+                    <div class="mb-3">
+                        <label class="form-label">入库数量</label>
+                        <input type="number" class="form-control" name="quantity" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">备注</label>
+                        <textarea class="form-control" name="notes" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-success">确认入库</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="outModal{{ material.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="bi bi-dash-circle me-2"></i>物资出库</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('material_out', id=material.id) }}">
+                <div class="modal-body">
+                    <p>物资名称：<strong>{{ material.name }}</strong></p>
+                    <p>当前库存：{{ material.quantity }}{{ material.unit }}</p>
+                    <div class="mb-3">
+                        <label class="form-label">出库数量</label>
+                        <input type="number" class="form-control" name="quantity" min="1" max="{{ material.quantity }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">备注</label>
+                        <textarea class="form-control" name="notes" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-warning">确认出库</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<div class="modal fade" id="addMaterialModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>添加物资</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_material') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">名称</label>
+                        <input type="text" class="form-control" name="name" placeholder="物资名称" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">类别</label>
+                        <input type="text" class="form-control" name="category" placeholder="如：器材">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">初始数量</label>
+                        <input type="number" class="form-control" name="quantity" value="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">单位</label>
+                        <input type="text" class="form-control" name="unit" placeholder="如：个">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">最低库存</label>
+                        <input type="number" class="form-control" name="min_stock" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">存放位置</label>
+                        <input type="text" class="form-control" name="location" placeholder="物资存放位置">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for material in materials %}
+<div class="modal fade" id="deleteMaterialModal{{ material.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>确认删除</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">确定要删除该物资吗？</h5>
+                <p class="text-muted">物资名称：<strong>{{ material.name }}</strong></p>
+                <p class="text-danger small">此操作不可恢复，请谨慎操作！</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <a href="{{ url_for('delete_material', id=material.id) }}" class="btn btn-danger">确认删除</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

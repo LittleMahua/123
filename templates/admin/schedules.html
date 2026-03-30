@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+
+{% block title %}赛程管理 - 运动会管理系统{% endblock %}
+
+{% block page_title %}赛程管理{% endblock %}
+
+{% block content %}
+{% if current_user.role == 'athlete' %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-person-badge me-2"></i>我的赛程
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>项目名称</th>
+                                <th>开始时间</th>
+                                <th>结束时间</th>
+                                <th>比赛地点</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for schedule in my_schedules %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ schedule.event.name if schedule.event else '-' }}</strong></td>
+                                <td>{{ schedule.start_time.strftime('%Y-%m-%d %H:%M') if schedule.start_time }}</td>
+                                <td>{{ schedule.end_time.strftime('%Y-%m-%d %H:%M') if schedule.end_time }}</td>
+                                <td>{{ schedule.location or '-' }}</td>
+                                <td>
+                                    {% if schedule.status == 'scheduled' %}
+                                    <span class="badge bg-info">待开始</span>
+                                    {% elif schedule.status == 'in_progress' %}
+                                    <span class="badge bg-warning">进行中</span>
+                                    {% elif schedule.status == 'completed' %}
+                                    <span class="badge bg-success">已完成</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ schedule.status }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if not my_schedules %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
+                    <p class="mt-2">您还没有报名的项目</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock me-2"></i>{% if current_user.role == 'athlete' %}全部赛程{% else %}赛程安排{% endif %}</span>
+                {% if current_user.role in ['admin', 'teacher', 'referee'] %}
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+                    <i class="bi bi-plus-circle me-1"></i>添加赛程
+                </button>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if schedules %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>项目名称</th>
+                                <th>开始时间</th>
+                                <th>结束时间</th>
+                                <th>比赛地点</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for schedule in schedules %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ schedule.event.name if schedule.event else '-' }}</strong></td>
+                                <td>{{ schedule.start_time.strftime('%Y-%m-%d %H:%M') if schedule.start_time }}</td>
+                                <td>{{ schedule.end_time.strftime('%Y-%m-%d %H:%M') if schedule.end_time }}</td>
+                                <td>{{ schedule.location or '-' }}</td>
+                                <td>
+                                    {% if schedule.status == 'scheduled' %}
+                                    <span class="badge bg-primary">已安排</span>
+                                    {% elif schedule.status == 'ongoing' %}
+                                    <span class="badge bg-warning">进行中</span>
+                                    {% elif schedule.status == 'completed' %}
+                                    <span class="badge bg-success">已完成</span>
+                                    {% elif schedule.status == 'cancelled' %}
+                                    <span class="badge bg-danger">已取消</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ schedule.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if current_user.role in ['admin', 'teacher', 'referee'] %}
+                                    <div class="action-btns">
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editScheduleModal{{ schedule.id }}">
+                                            <i class="bi bi-pencil"></i> 编辑
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteScheduleModal{{ schedule.id }}">
+                                            <i class="bi bi-trash"></i> 删除
+                                        </button>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-clock"></i>
+                    <h5>暂无赛程安排</h5>
+                    <p>点击上方按钮添加赛程</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for schedule in schedules %}
+<div class="modal fade" id="editScheduleModal{{ schedule.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>编辑赛程</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('edit_schedule', id=schedule.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">选择项目</label>
+                        <select class="form-select" name="event_id" required>
+                            {% for event in events %}
+                            <option value="{{ event.id }}" {% if schedule.event_id == event.id %}selected{% endif %}>{{ event.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">开始时间</label>
+                        <input type="datetime-local" class="form-control" name="start_time" value="{{ schedule.start_time.strftime('%Y-%m-%dT%H:%M') if schedule.start_time }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">结束时间</label>
+                        <input type="datetime-local" class="form-control" name="end_time" value="{{ schedule.end_time.strftime('%Y-%m-%dT%H:%M') if schedule.end_time }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">比赛地点</label>
+                        <input type="text" class="form-control" name="location" value="{{ schedule.location or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" name="status" required>
+                            <option value="scheduled" {% if schedule.status == 'scheduled' %}selected{% endif %}>已安排</option>
+                            <option value="ongoing" {% if schedule.status == 'ongoing' %}selected{% endif %}>进行中</option>
+                            <option value="completed" {% if schedule.status == 'completed' %}selected{% endif %}>已完成</option>
+                            <option value="cancelled" {% if schedule.status == 'cancelled' %}selected{% endif %}>已取消</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteScheduleModal{{ schedule.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>确认删除</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">确定要删除该赛程吗？</h5>
+                <p class="text-muted">项目：<strong>{{ schedule.event.name if schedule.event else '-' }}</strong></p>
+                <p class="text-muted">时间：<strong>{{ schedule.start_time.strftime('%Y-%m-%d %H:%M') if schedule.start_time }}</strong></p>
+                <p class="text-danger small">此操作不可恢复，请谨慎操作！</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <a href="{{ url_for('delete_schedule', id=schedule.id) }}" class="btn btn-danger">确认删除</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% if current_user.role in ['admin', 'teacher'] %}
+<div class="modal fade" id="addScheduleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>添加赛程</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_schedule') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">选择项目</label>
+                        <select class="form-select" name="event_id" required>
+                            <option value="">请选择项目</option>
+                            {% for event in events %}
+                            <option value="{{ event.id }}">{{ event.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">开始时间</label>
+                        <input type="datetime-local" class="form-control" name="start_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">结束时间</label>
+                        <input type="datetime-local" class="form-control" name="end_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">比赛地点</label>
+                        <input type="text" class="form-control" name="location" placeholder="如：田径场">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

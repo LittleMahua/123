@@ -1,0 +1,204 @@
+{% extends "layout.html" %}
+
+{% block title %}成绩详情 - 运动会管理系统{% endblock %}
+
+{% block page_title %}成绩详情{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('results') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回成绩列表
+                </a>
+                {% if current_user.role in ['admin', 'teacher'] %}
+                <div>
+                    <a href="{{ url_for('delete_result', id=result.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('确定删除该成绩吗？')">
+                        <i class="bi bi-trash me-1"></i>删除
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="result-detail">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="text-center mb-4">
+                                {% if result.rank == 1 %}
+                                <div class="rank-badge rank-1">
+                                    <i class="bi bi-trophy-fill"></i>
+                                </div>
+                                <h3 class="mt-3 text-warning">第1名</h3>
+                                {% elif result.rank == 2 %}
+                                <div class="rank-badge rank-2">
+                                    <i class="bi bi-trophy-fill"></i>
+                                </div>
+                                <h3 class="mt-3 text-secondary">第2名</h3>
+                                {% elif result.rank == 3 %}
+                                <div class="rank-badge rank-3">
+                                    <i class="bi bi-trophy-fill"></i>
+                                </div>
+                                <h3 class="mt-3" style="color: #cd7f32;">第3名</h3>
+                                {% else %}
+                                <div class="rank-badge rank-other">
+                                    <i class="bi bi-award-fill"></i>
+                                </div>
+                                <h3 class="mt-3 text-info">第{{ result.rank }}名</h3>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h5 class="info-title"><i class="bi bi-person-badge me-2"></i>运动员信息</h5>
+                                <div class="info-content">
+                                    <div class="info-item">
+                                        <span class="info-label">姓名</span>
+                                        <span class="info-value">{{ result.athlete.name if result.athlete else '-' }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">学号</span>
+                                        <span class="info-value">{{ result.athlete.student_id if result.athlete else '-' }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">性别</span>
+                                        <span class="info-value">{{ result.athlete.gender if result.athlete else '-' }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">班级</span>
+                                        <span class="info-value">{{ result.athlete.class_name if result.athlete else '-' }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">联系电话</span>
+                                        <span class="info-value">{{ result.athlete.phone if result.athlete else '-' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h5 class="info-title"><i class="bi bi-calendar-event me-2"></i>比赛信息</h5>
+                                <div class="info-content">
+                                    <div class="info-item">
+                                        <span class="info-label">比赛项目</span>
+                                        <span class="info-value">{{ result.schedule.event.name if result.schedule and result.schedule.event else '-' }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">项目类型</span>
+                                        <span class="info-value">{{ result.schedule.event.event_type if result.schedule and result.schedule.event else '-' }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">比赛时间</span>
+                                        <span class="info-value">{{ result.schedule.start_time.strftime('%Y-%m-%d %H:%M') if result.schedule and result.schedule.start_time else '-' }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">比赛地点</span>
+                                        <span class="info-value">{{ result.schedule.location if result.schedule else '-' }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">比赛成绩</span>
+                                        <span class="info-value score-value">{{ result.score }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if result.remarks %}
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="info-card">
+                                <h5 class="info-title"><i class="bi bi-chat-left-text me-2"></i>备注</h5>
+                                <div class="info-content">
+                                    <p class="mb-0">{{ result.remarks }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rank-badge {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+    }
+    
+    .rank-1 {
+        background: linear-gradient(135deg, #ffd700, #ffb700);
+        color: white;
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+    }
+    
+    .rank-2 {
+        background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+        color: white;
+        box-shadow: 0 8px 25px rgba(192, 192, 192, 0.4);
+    }
+    
+    .rank-3 {
+        background: linear-gradient(135deg, #cd7f32, #b87333);
+        color: white;
+        box-shadow: 0 8px 25px rgba(205, 127, 50, 0.4);
+    }
+    
+    .rank-other {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        color: white;
+        box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
+    }
+    
+    .info-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        height: 100%;
+    }
+    
+    .info-title {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        color: #64748b;
+        font-weight: 500;
+    }
+    
+    .info-value {
+        color: #1e293b;
+        font-weight: 600;
+    }
+    
+    .score-value {
+        font-size: 1.2rem;
+        color: #4f46e5;
+    }
+</style>
+{% endblock %}

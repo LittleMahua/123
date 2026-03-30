@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+
+{% block title %}队伍管理 - 运动会管理系统{% endblock %}
+
+{% block page_title %}队伍管理{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-collection me-2"></i>队伍列表</span>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTeamModal">
+                    <i class="bi bi-plus-circle me-1"></i>添加队伍
+                </button>
+            </div>
+            <div class="card-body">
+                {% if teams %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>队名</th>
+                                <th>代号</th>
+                                <th>教练</th>
+                                <th>联系电话</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team in teams %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ team.name }}</strong></td>
+                                <td>{{ team.code }}</td>
+                                <td>{{ team.coach or '-' }}</td>
+                                <td>{{ team.contact_phone or '-' }}</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editTeamModal{{ team.id }}">
+                                            <i class="bi bi-pencil"></i> 编辑
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteTeamModal{{ team.id }}">
+                                            <i class="bi bi-trash"></i> 删除
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-collection"></i>
+                    <h5>暂无队伍</h5>
+                    <p>点击上方按钮添加队伍</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for team in teams %}
+<div class="modal fade" id="editTeamModal{{ team.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>编辑队伍</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('edit_team', id=team.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">队名</label>
+                        <input type="text" class="form-control" name="name" value="{{ team.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">代号</label>
+                        <input type="text" class="form-control" name="code" value="{{ team.code }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">教练</label>
+                        <input type="text" class="form-control" name="coach" value="{{ team.coach or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">联系电话</label>
+                        <input type="text" class="form-control" name="contact_phone" value="{{ team.contact_phone or '' }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<div class="modal fade" id="addTeamModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>添加队伍</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_team') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">队名</label>
+                        <input type="text" class="form-control" name="name" placeholder="请输入队名" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">代号</label>
+                        <input type="text" class="form-control" name="code" placeholder="如：计算机一队" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">教练</label>
+                        <input type="text" class="form-control" name="coach" placeholder="教练姓名">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">联系电话</label>
+                        <input type="text" class="form-control" name="contact_phone" placeholder="联系电话">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for team in teams %}
+<div class="modal fade" id="deleteTeamModal{{ team.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>确认删除</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">确定要删除该队伍吗？</h5>
+                <p class="text-muted">队伍名称：<strong>{{ team.name }}</strong></p>
+                <p class="text-danger small">此操作不可恢复，请谨慎操作！</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <a href="{{ url_for('delete_team', id=team.id) }}" class="btn btn-danger">确认删除</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
